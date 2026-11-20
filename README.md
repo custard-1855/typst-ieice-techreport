@@ -87,6 +87,9 @@ make clean    # 生成物を削除
 - 英文の文献は `refs.bib` に BibTeX で書きます
 - 和文の文献は `refs_ja.yml` ([hayagriva](https://github.com/typst/hayagriva/blob/main/docs/file-format.md) の YAML) に `language: ja` を付けて書きます。Typst は `.bib` の `language` を文献様式に渡さないためです。著者は `"姓, 名"` で書きます
 - 規格文書は `type` に発行元、`number` に文書番号を書きます (`refs.bib` の ETSI の例)
+- `.bib` の `volume` は数字でないと出ません (`E100-B` は巻ごと消える)。信学論のような巻は、英文の文献でも `refs_ja.yml` に `language` を付けずに書きます
+- `.bib` の `number` は数として読まれ、`NS2025-1` のハイフンが en ダッシュに、`TS 23.501` が `TS23.501` になります。崩れるときは `number` を書かず、番号まで `type` に書きます (`type = {信学技報 NS2025-1}`)
+- Web ページの URL は `url` に書きます。`howpublished = {\url{...}}` と書くと `\url{...}` がそのまま出ます。`@misc` に `howpublished` と `note` の両方を書くと `howpublished` が落ちます
 - 英文の著者が 12 名以上のときは先頭 3 名 + ", et al." になります。人数は `ieice.csl` の `et-al-min` で変えられます
 - `sieicej.bst` と合わせていない細部は `ieice.csl` の冒頭のコメントにあります
 

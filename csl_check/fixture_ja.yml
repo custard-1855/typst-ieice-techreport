@@ -1,4 +1,4 @@
-# 和文の論文誌の検査用 (架空の文献). 期待値は sieicej.bst の article を手で追ったもの.
+# 和文の論文誌と本の検査用 (架空の文献). 期待値は sieicej.bst の article と book を手で追ったもの.
 ja-article:
   type: article
   title: ネットワーク性能予測モデルの分析
@@ -11,3 +11,11 @@ ja-article:
     title: 信学論 (B)
     volume: J100-B
     issue: 1
+
+ja-book:
+  type: book
+  title: 通信ネットワーク工学
+  author: ["電子, 太郎"]
+  date: 2020
+  language: ja
+  publisher: {name: 架空出版, location: 東京}

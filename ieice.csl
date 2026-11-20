@@ -16,7 +16,13 @@
     人名として読むため, ここでは英文の著者が12名以上なら先頭3名 + ", et al." にする (author-en の et-al-min.
     紙面を詰めたいときはこの値を小さくする).
     和文の著者は省略しない.
-  - book, inbook, incollection, thesis の細部. 汎用の並びで出す.
+  - 編者 (bst は本で ", eds." を, 会議録と incollection で "eds. by ..." を出す), 章, organization
+    (publisher が無いときだけ出す), 巻の無い会議録の号, 和文の本と会議録の "第N巻".
+  - 学位論文の種別. hayagriva の語をそのまま出すので, @phdthesis は "Doctoral dissertation" になる
+    (bst は "PhD thesis"). bib の type に書けばその語が出る.
+  - 技術報告の種別の大文字と小文字. bst は種別を書かないとき "Technical Report 12" (番号なしは
+    "Technical report"), 種別を書いて番号が無いとき2字目以降を小文字にする. ここでは先頭だけ大文字にする
+    ("Technical report 12").
 -->
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="en-US" demote-non-dropping-particle="never">
   <info>
@@ -86,12 +92,28 @@
   <macro name="issue">
     <text variable="issue" prefix="no."/>
   </macro>
-  <!-- bst の format.tr.number: 種別 (既定 "Technical Report") と番号 -->
+  <!-- bst の format.edition: 英文 "third edition", 和文 "第3版" (数字でなければそのまま) -->
+  <macro name="edition-en">
+    <text variable="edition" text-case="lowercase" suffix=" edition"/>
+  </macro>
+  <macro name="edition-ja">
+    <choose>
+      <if is-numeric="edition">
+        <text variable="edition" prefix="第" suffix="版"/>
+      </if>
+      <else>
+        <text variable="edition"/>
+      </else>
+    </choose>
+  </macro>
+  <!-- bst の format.tr.number: 種別 (既定 "Technical Report") と番号.
+       hayagriva は @techreport に種別が無いと "technical report" を入れてくるので, 先頭を大文字にする
+       (text-case="title" は "3GPP TS" を "3gpp TS" に崩すので使わない). -->
   <macro name="report-number">
     <group delimiter=" ">
       <choose>
         <if variable="genre">
-          <text variable="genre"/>
+          <text variable="genre" text-case="capitalize-first"/>
         </if>
         <else>
           <text value="Technical Report"/>
@@ -107,6 +129,28 @@
       </if>
       <else>
         <text variable="authority"/>
+      </else>
+    </choose>
+  </macro>
+
+  <!-- 題目. 本は引用符を付けない (bst の format.book.title) -->
+  <macro name="title-en">
+    <choose>
+      <if type="book">
+        <text variable="title" suffix=","/>
+      </if>
+      <else>
+        <text variable="title" prefix="“" suffix=",”"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="title-ja">
+    <choose>
+      <if type="book">
+        <text variable="title" suffix="，"/>
+      </if>
+      <else>
+        <text variable="title" prefix="“" suffix="，”"/>
       </else>
     </choose>
   </macro>
@@ -140,6 +184,26 @@
         <group delimiter=", ">
           <!-- bst の techreport: type number, institution, address, year -->
           <text macro="report-number"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else-if type="book">
+        <group delimiter=", ">
+          <!-- bst の book: volume, edition, series, publisher, address, year -->
+          <text macro="volume"/>
+          <text macro="edition-en"/>
+          <text variable="collection-title"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else-if type="thesis">
+        <group delimiter=", ">
+          <!-- bst の phdthesis / mastersthesis: type, school, address, year -->
+          <text variable="genre"/>
           <text macro="publisher"/>
           <text variable="publisher-place"/>
           <text macro="date"/>
@@ -192,6 +256,26 @@
           <text macro="date"/>
         </group>
       </else-if>
+      <else-if type="book">
+        <group delimiter="，">
+          <!-- bst の book: volume, edition, series, publisher, address, year -->
+          <text macro="volume"/>
+          <text macro="edition-ja"/>
+          <text variable="collection-title"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else-if type="thesis">
+        <group delimiter="，">
+          <!-- bst の phdthesis / mastersthesis: type, school, address, year -->
+          <text variable="genre"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
       <else>
         <group delimiter="，">
           <!-- misc など. hayagriva は howpublished を note に入れるので, 年の前に出す (bst の misc と同じ並び) -->
@@ -211,7 +295,7 @@
   <!-- bst は note を年の後ろの別の文として出す (misc は howpublished と兼ねるので出さない) -->
   <macro name="note-after">
     <choose>
-      <if type="article-journal article-magazine article-newspaper periodical paper-conference chapter report" match="any">
+      <if type="article-journal article-magazine article-newspaper periodical paper-conference chapter report book thesis" match="any">
         <text variable="note"/>
       </if>
     </choose>
@@ -239,7 +323,7 @@
           <group delimiter=" ">
             <group delimiter="，">
               <text macro="author-ja"/>
-              <text variable="title" prefix="“" suffix="，”"/>
+              <text macro="title-ja"/>
             </group>
             <text macro="source-ja" suffix="．"/>
             <text macro="note-after" suffix="．"/>
@@ -250,7 +334,7 @@
           <group delimiter=" ">
             <group delimiter=", ">
               <text macro="author-en"/>
-              <text variable="title" prefix="“" suffix=",”"/>
+              <text macro="title-en"/>
             </group>
             <text macro="source-en" suffix="."/>
             <text macro="note-after" suffix="."/>
