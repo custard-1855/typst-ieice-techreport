@@ -22,6 +22,6 @@ check:
 	uv run --with pymupdf python csl_check/check_csl.py
 
 clean:
-	rm -f $(DOC).pdf csl_check/check.pdf
+	rm -f $(DOC).pdf
 
 .PHONY: all watch sample check clean

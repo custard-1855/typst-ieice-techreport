@@ -7,7 +7,7 @@
 
 @cornell2024dcase @blackman2016ambient @guerra2023ambient @bouchabou2021survey @hyun2023sound
 @mesaros2021sound @schmid2024improving @tarvainen2017mean @xiao2023multi @11036061 @zhou2021domain
-@xiao2024fmsg @etsi2019zsm002 @ja-article
+@xiao2024fmsg @etsi2019zsm002 @ja-article @knuth1997art @roe2020thesis @roe2019report @ja-book
 
 CITE: @guerra2023ambient @bouchabou2021survey ; @blackman2016ambient @guerra2023ambient @bouchabou2021survey @hyun2023sound ; @hyun2023sound @mesaros2021sound END
 

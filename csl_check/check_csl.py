@@ -1,13 +1,14 @@
 """ieice.csl の出力を sieicej.bst の出力と照合する.
 
 英文の期待値は学会配布のテンプレート PDF (2026年12月版) の文献欄 (bst で組んだもの) を写したもの.
-規格文書と和文の期待値は sieicej.bst の techreport / article を手で追ったもの.
+それ以外 (規格文書, 和文, 本, 学位論文) の期待値は sieicej.bst の該当する関数を手で追ったもの.
 リポジトリのルートから: make check (= uv run --with pymupdf python csl_check/check_csl.py)
 """
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pymupdf
@@ -46,6 +47,11 @@ EXPECTED = {
     13: "ETSI, “Zero-touch network and Service Management (ZSM); Reference Architecture,” Group Specification "
         "ETSI GS ZSM 002 V1.1.1, European Telecommunications Standards Institute, Aug. 2019.",
     14: "竹本志恩，川原亮一，“ネットワーク性能予測モデルの分析，” 信学論 (B)，vol.J100-B，no.1，pp.1–10，2017．",
+    # bst の book は題目に引用符を付けない
+    15: "D.E. Knuth, The Art of Computer Programming, vol.1, third edition, Addison-Wesley, Reading, MA, 1997.",
+    16: "R. Roe, “A study of network performance prediction,” Master's thesis, Example University, March 2020.",
+    17: "R. Roe, “Notes on network measurement,” Technical report, Example Laboratories, 2019.",
+    18: "電子太郎，通信ネットワーク工学， 架空出版，東京，2020．",
 }
 # ieice.cls の citesort: 並べ替え, "],\,[" で区切り, 3件以上の連番は "]〜[" で畳む
 EXPECTED_CITES = "[3], [4] ; [2]〜[5] ; [5], [6]"
@@ -57,10 +63,13 @@ def normalize(s: str) -> str:
 
 
 def main() -> int:
-    pdf = HERE / "check.pdf"
-    subprocess.run([*TYPST, "compile", "--root", str(HERE.parent), str(HERE / "check.typ"), str(pdf)],
-                   check=True)
-    text = "".join(page.get_text() for page in pymupdf.open(pdf))
+    # PDF は照合にしか使わないので, 一時ディレクトリに作って残さない
+    with tempfile.TemporaryDirectory() as tmp:
+        pdf = Path(tmp) / "check.pdf"
+        subprocess.run([*TYPST, "compile", "--root", str(HERE.parent), str(HERE / "check.typ"), str(pdf)],
+                       check=True)
+        with pymupdf.open(pdf) as doc:
+            text = "".join(page.get_text() for page in doc)
     fails = 0
 
     cites = normalize(text.split("CITE:")[1].split("END")[0])
