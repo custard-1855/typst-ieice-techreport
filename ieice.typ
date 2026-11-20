@@ -23,7 +23,9 @@
 #let latin = ("Times", "TeX Gyre Termes", "Liberation Serif").map(f => (name: f, covers: "latin-in-cjk"))
 #let fonts-serif = (..latin, "Hiragino Mincho ProN", "Noto Serif CJK JP")
 #let fonts-gothic = (..latin, "Hiragino Kaku Gothic ProN", "Noto Sans CJK JP")
-#let fonts-math = ("STIX Two Math", "New Computer Modern Math")
+// 数式と等幅の中の和文は明朝で組む. 和文フォントを並べておかないと, Typst が手近なフォント (Mac では Klee や Osaka) に落とす.
+#let fonts-math = ("STIX Two Math", "New Computer Modern Math", "Hiragino Mincho ProN", "Noto Serif CJK JP")
+#let fonts-mono = ("DejaVu Sans Mono", "Hiragino Mincho ProN", "Noto Serif CJK JP")
 
 // ---- 小物 ----------------------------------------------------------------
 
@@ -366,6 +368,7 @@
 
   // 数式: 左寄せ (ieice の雛形は amsmath の fleqn)
   show math.equation: set text(font: fonts-math)
+  show raw: set text(font: fonts-mono)
   set math.equation(numbering: "(1)")
   show math.equation.where(block: true): set align(left)
   show math.equation.where(block: true): it => pad(left: 2 * zw, it)
