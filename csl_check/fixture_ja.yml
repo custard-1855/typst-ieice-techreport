@@ -1,0 +1,13 @@
+# 和文の論文誌の検査用 (架空の文献). 期待値は sieicej.bst の article を手で追ったもの.
+ja-article:
+  type: article
+  title: ネットワーク性能予測モデルの分析
+  author: ["竹本, 志恩", "川原, 亮一"]
+  date: 2017
+  language: ja
+  page-range: 1-10
+  parent:
+    type: periodical
+    title: 信学論 (B)
+    volume: J100-B
+    issue: 1

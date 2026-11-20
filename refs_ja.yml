@@ -1,0 +1,15 @@
+# 和文の文献 (hayagriva の YAML). language: ja を付けると和文の様式で組まれる.
+# 著者は "姓, 名" で書く ("電子 太郎" と書くと名が落ちる).
+# 下は書き方の見本で, 架空の文献.
+ieice-sample:
+  type: article
+  title: 文献の題目の例
+  author: ["電子, 太郎", "情報, 花子"]
+  date: 2026
+  language: ja
+  page-range: 1-10
+  parent:
+    type: periodical
+    title: 信学論 (B)
+    volume: J109-B
+    issue: 1

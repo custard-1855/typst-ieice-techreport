@@ -1,0 +1,29 @@
+# push するたびに PDF を生成し、Actions の Artifacts に保存する
+name: Build report
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # ヒラギノと Times の代わりに使うフォント
+      - name: Install fonts
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk fonts-liberation
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.9.37
+
+      - name: Build
+        run: make
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: report
+          path: main.pdf

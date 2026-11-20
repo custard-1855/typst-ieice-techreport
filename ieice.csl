@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  電子情報通信学会 (信学技報) の文献様式. 学会配布の sieicej.bst と ieice.cls の citesort に合わせる.
+
+  和文と英文: bst は著者・題目などに漢字があるかで和文の文献を見分け, 区切りを "，" "．" にし,
+  著者を "and" でつながない. CSL には文字種を見る条件がないので, language 変数がある文献を和文として扱う.
+  Typst (hayagriva 0.9) は .bib の langid/language を CSL の language に渡さないため,
+  和文の文献は hayagriva の YAML (refs_ja.yml) に language: ja を付けて書く. 著者は "姓, 名" で書く
+  ("竹本, 志恩" → 竹本志恩. "竹本 志恩" と書くと名が落ちる).
+
+  bst と合わせていないもの:
+  - 3字以下の和文氏名の間の全角空白 (bst は "{ff}\hskip1zw{ll}").
+  - 必須フィールドの欠け (bst は "pp.••–••" などの印を出す). ここでは何も出さない.
+  - 漢字の巻・号 (bst は "vol." "no." を付けない). 常に付ける.
+  - "and others" (bst は英文 ", et al." 和文 "他" を, bib に "and others" と書いた文献に出す). hayagriva は others を
+    人名として読むため, ここでは英文の著者が12名以上なら先頭3名 + ", et al." にする (author-en の et-al-min.
+    紙面を詰めたいときはこの値を小さくする).
+    和文の著者は省略しない.
+  - book, inbook, incollection, thesis の細部. 汎用の並びで出す.
+-->
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" default-locale="en-US" demote-non-dropping-particle="never">
+  <info>
+    <title>IEICE technical report (sieicej.bst)</title>
+    <id>ieice-sieicej-typst</id>
+    <category citation-format="numeric"/>
+    <updated>2026-10-15T00:00:00+00:00</updated>
+  </info>
+  <locale xml:lang="en">
+    <terms>
+      <!-- ieice.cls の citesort は3件以上の連番を "]〜[" で畳むが, hayagriva は citation-range-delimiter の
+           term を読めない. "–" → "〜" は ieice.typ の ieice-cite で置き換える. -->
+      <term name="page" form="short">
+        <single>p.</single>
+        <multiple>pp.</multiple>
+      </term>
+      <!-- sieicej.bst の MACRO {jan} など -->
+      <term name="month-01" form="short">Jan.</term>
+      <term name="month-02" form="short">Feb.</term>
+      <term name="month-03" form="short">March</term>
+      <term name="month-04" form="short">April</term>
+      <term name="month-05" form="short">May</term>
+      <term name="month-06" form="short">June</term>
+      <term name="month-07" form="short">July</term>
+      <term name="month-08" form="short">Aug.</term>
+      <term name="month-09" form="short">Sept.</term>
+      <term name="month-10" form="short">Oct.</term>
+      <term name="month-11" form="short">Nov.</term>
+      <term name="month-12" form="short">Dec.</term>
+    </terms>
+  </locale>
+
+  <!-- 著者. 英文: "S. Blackman, C. Matlo, and A. Sixsmith" (2名は "A and B"). 和文: "竹本志恩，川原亮一" -->
+  <macro name="author-en">
+    <names variable="author">
+      <name initialize-with="." and="text" delimiter=", " delimiter-precedes-last="contextual"
+            et-al-min="12" et-al-use-first="3" delimiter-precedes-et-al="always"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="author-ja">
+    <names variable="author">
+      <name delimiter="，"/>
+      <substitute>
+        <names variable="editor"/>
+      </substitute>
+    </names>
+  </macro>
+
+  <macro name="date">
+    <date variable="issued">
+      <date-part name="month" form="short" suffix=" "/>
+      <date-part name="year"/>
+    </date>
+  </macro>
+  <macro name="pages">
+    <group>
+      <label variable="page" form="short"/>
+      <text variable="page"/>
+    </group>
+  </macro>
+  <macro name="volume">
+    <text variable="volume" prefix="vol."/>
+  </macro>
+  <macro name="issue">
+    <text variable="issue" prefix="no."/>
+  </macro>
+  <!-- bst の format.tr.number: 種別 (既定 "Technical Report") と番号 -->
+  <macro name="report-number">
+    <group delimiter=" ">
+      <choose>
+        <if variable="genre">
+          <text variable="genre"/>
+        </if>
+        <else>
+          <text value="Technical Report"/>
+        </else>
+      </choose>
+      <text variable="number"/>
+    </group>
+  </macro>
+  <macro name="publisher">
+    <choose>
+      <if variable="publisher">
+        <text variable="publisher"/>
+      </if>
+      <else>
+        <text variable="authority"/>
+      </else>
+    </choose>
+  </macro>
+
+  <!-- 題目の後ろの並び. group の区切りは macro の中まで届かないので, 英文 ", " と和文 "，" で2つ持つ.
+       中身は同じに保つ (違うのは区切りだけ). -->
+  <macro name="source-en">
+    <choose>
+      <if type="article-journal article-magazine article-newspaper periodical" match="any">
+        <group delimiter=", ">
+          <text variable="container-title"/>
+          <text macro="volume"/>
+          <text macro="issue"/>
+          <text macro="pages"/>
+          <text macro="date"/>
+        </group>
+      </if>
+      <else-if type="paper-conference chapter" match="any">
+        <group delimiter=", ">
+          <!-- bst の inproceedings: booktitle, volume, organization, pages, series, publisher, address, year -->
+          <text variable="container-title"/>
+          <text macro="volume"/>
+          <text macro="pages"/>
+          <text variable="collection-title"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else-if type="report">
+        <group delimiter=", ">
+          <!-- bst の techreport: type number, institution, address, year -->
+          <text macro="report-number"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else>
+        <group delimiter=", ">
+          <!-- misc など. hayagriva は howpublished を note に入れるので, 年の前に出す (bst の misc と同じ並び) -->
+          <text variable="container-title"/>
+          <text macro="volume"/>
+          <text macro="issue"/>
+          <text macro="pages"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text variable="note"/>
+          <text macro="date"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+  <macro name="source-ja">
+    <choose>
+      <if type="article-journal article-magazine article-newspaper periodical" match="any">
+        <group delimiter="，">
+          <text variable="container-title"/>
+          <text macro="volume"/>
+          <text macro="issue"/>
+          <text macro="pages"/>
+          <text macro="date"/>
+        </group>
+      </if>
+      <else-if type="paper-conference chapter" match="any">
+        <group delimiter="，">
+          <!-- bst の inproceedings: booktitle, volume, organization, pages, series, publisher, address, year -->
+          <text variable="container-title"/>
+          <text macro="volume"/>
+          <text macro="pages"/>
+          <text variable="collection-title"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else-if type="report">
+        <group delimiter="，">
+          <!-- bst の techreport: type number, institution, address, year -->
+          <text macro="report-number"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text macro="date"/>
+        </group>
+      </else-if>
+      <else>
+        <group delimiter="，">
+          <!-- misc など. hayagriva は howpublished を note に入れるので, 年の前に出す (bst の misc と同じ並び) -->
+          <text variable="container-title"/>
+          <text macro="volume"/>
+          <text macro="issue"/>
+          <text macro="pages"/>
+          <text macro="publisher"/>
+          <text variable="publisher-place"/>
+          <text variable="note"/>
+          <text macro="date"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
+
+  <!-- bst は note を年の後ろの別の文として出す (misc は howpublished と兼ねるので出さない) -->
+  <macro name="note-after">
+    <choose>
+      <if type="article-journal article-magazine article-newspaper periodical paper-conference chapter report" match="any">
+        <text variable="note"/>
+      </if>
+    </choose>
+  </macro>
+
+  <citation collapse="citation-number">
+    <sort>
+      <key variable="citation-number"/>
+    </sort>
+    <!-- ieice.cls の \@citea: "],\,[" (コンマと細い空白) -->
+    <layout delimiter=",&#x2009;">
+      <!-- 場所 (Typst の @key[Sec. V-A3]) は番号の後ろに ", " で続ける: "[5, Sec. V-A3]" -->
+      <group prefix="[" suffix="]" delimiter=", ">
+        <text variable="citation-number"/>
+        <text variable="locator"/>
+      </group>
+    </layout>
+  </citation>
+
+  <bibliography second-field-align="flush" entry-spacing="0">
+    <layout>
+      <text variable="citation-number" prefix="[" suffix="]"/>
+      <choose>
+        <if variable="language">
+          <group delimiter=" ">
+            <group delimiter="，">
+              <text macro="author-ja"/>
+              <text variable="title" prefix="“" suffix="，”"/>
+            </group>
+            <text macro="source-ja" suffix="．"/>
+            <text macro="note-after" suffix="．"/>
+            <text variable="URL"/>
+          </group>
+        </if>
+        <else>
+          <group delimiter=" ">
+            <group delimiter=", ">
+              <text macro="author-en"/>
+              <text variable="title" prefix="“" suffix=",”"/>
+            </group>
+            <text macro="source-en" suffix="."/>
+            <text macro="note-after" suffix="."/>
+            <text variable="URL"/>
+          </group>
+        </else>
+      </choose>
+    </layout>
+  </bibliography>
+</style>
