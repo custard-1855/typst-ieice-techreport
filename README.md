@@ -22,6 +22,39 @@
 - フォント: Times、ヒラギノ明朝 ProN、ヒラギノ角ゴ ProN、STIX Two Math (どれも macOS に入っている)
 - make
 
+## セットアップ (macOS)
+
+1. make を入れる (入っていれば不要)
+
+   ```sh
+   xcode-select --install
+   ```
+
+2. Quarto か Typst のどちらかを入れる。[Homebrew](https://brew.sh/) なら:
+
+   ```sh
+   brew install --cask quarto   # Quarto (Typst が同梱されている)
+   brew install typst           # または Typst だけ
+   ```
+
+   Quarto は [公式サイトのインストーラ](https://quarto.org/docs/get-started/) からも入れられます。
+
+3. 入ったことを確かめる
+
+   ```sh
+   quarto typst --version       # Typst を入れたなら typst --version
+   ```
+
+   `typst 0.14` 以降と出れば使えます。動作を確かめてあるのは Typst 0.14.2 (Quarto 1.9.37 に同梱) です。
+
+4. `make check` を使うなら [uv](https://docs.astral.sh/uv/) も入れる (`ieice.csl` を変えないなら不要)
+
+   ```sh
+   brew install uv
+   ```
+
+フォントは macOS に入っているものだけを使うので、追加のインストールは要りません。
+
 ## 使い方
 
 1. GitHub で「Use this template」から新しいリポジトリを作る。コマンドなら:
