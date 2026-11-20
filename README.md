@@ -19,8 +19,8 @@
 ## 必要なもの
 
 - [Quarto](https://quarto.org/) 1.9 以降 (Typst 0.14 が同梱されている)、または Typst 0.14 以降
-- フォント: Times、ヒラギノ明朝 ProN、ヒラギノ角ゴ ProN、STIX Two Math (どれも macOS に入っている)
-- make
+- フォント: Times、ヒラギノ明朝 ProN、ヒラギノ角ゴ ProN、STIX Two Math (どれも macOS に入っている)。Windows では代わりのフォントを入れる ([セットアップ (Windows)](#セットアップ-windows))
+- make (Windows では無くてもよい)
 
 ## セットアップ (macOS)
 
@@ -54,6 +54,52 @@
    ```
 
 フォントは macOS に入っているものだけを使うので、追加のインストールは要りません。
+
+## セットアップ (Windows)
+
+Windows にはヒラギノと Times が無いので、GitHub Actions と同じ代わりのフォント (Noto Serif / Sans CJK JP と Liberation Serif) で組みます。行の折り返しやページ数が Mac と変わることがあります。
+
+> [!WARNING]
+> この節の手順は Windows の実機でまだ試していません。うまくいかないところがあれば issue で知らせてください。
+
+1. Quarto か Typst のどちらかを入れる。PowerShell で:
+
+   ```powershell
+   winget install --id Posit.Quarto   # Quarto (Typst が同梱されている)
+   winget install --id Typst.Typst    # または Typst だけ
+   ```
+
+   入れたあと、PowerShell を開き直します。
+
+2. フォントを 3 つダウンロードして展開する
+
+   - Noto Serif CJK JP: [noto-cjk の Releases](https://github.com/notofonts/noto-cjk/releases) の「Serif」の版にある `07_NotoSerifCJKjp.zip`
+   - Noto Sans CJK JP: 同じページの「Sans」の版にある `06_NotoSansCJKjp.zip`
+   - Liberation Serif: [liberation-fonts の Releases](https://github.com/liberationfonts/liberation-fonts/releases) にある `liberation-fonts-ttf-*.tar.gz` (`tar -xf ファイル名` で展開できる)
+
+   Google Fonts で配られている「Noto Serif JP」「Noto Sans JP」は、フォントの名前が違うので使えません。
+
+3. 展開した `.otf` と `LiberationSerif-*.ttf` を選び、右クリックの「すべてのユーザーに対してインストール」で入れる
+
+4. 入ったことを確かめる
+
+   ```powershell
+   quarto typst --version       # Typst を入れたなら typst --version
+   quarto typst fonts | Select-String "Noto Serif CJK JP", "Noto Sans CJK JP", "Liberation Serif"
+   ```
+
+   `typst 0.14` 以降と、3 つのフォントの名前が出れば使えます。
+
+5. ビルドする。make は使わず、Typst を直接呼びます (Typst を入れたなら `quarto typst` を `typst` に読み替える)
+
+   ```powershell
+   quarto typst compile main.typ   # main.pdf を生成
+   quarto typst watch main.typ     # 保存するたびに再生成
+   ```
+
+   `unknown font family: times` や `hiragino mincho pron` などの警告は、Mac 用のフォントが無いだけなので無視してかまいません。
+
+`make` や `make check` も使いたいときは、[WSL](https://learn.microsoft.com/ja-jp/windows/wsl/install) の Ubuntu に Linux 版の Quarto か Typst を入れ、`sudo apt-get install -y make fonts-noto-cjk fonts-liberation` を実行します。GitHub Actions と同じ環境になります。
 
 ## 使い方
 
@@ -143,7 +189,7 @@ docs/sample.pdf      サンプル原稿の PDF (make sample で更新)
 
 ## GitHub Actions
 
-push するたびに PDF をビルドし、Actions の実行結果の Artifacts (`report`) に保存します。Ubuntu にはヒラギノと Times が無いので、CI では Noto Serif / Sans CJK JP と Liberation Serif で組まれ、行の折り返しやページ数が Mac と変わることがあります。投稿する PDF は Mac でビルドしてください。
+push するたびに PDF をビルドし、Actions の実行結果の Artifacts (`report`) に保存します。Ubuntu にはヒラギノと Times が無いので、CI では Noto Serif / Sans CJK JP と Liberation Serif で組まれ、行の折り返しやページ数が Mac と変わることがあります。Windows でビルドしたときも同じです。学会のテンプレートに最も近い体裁になるのは Mac でビルドした PDF です。
 
 ## 注意
 
