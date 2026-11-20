@@ -19,7 +19,7 @@
 ## 必要なもの
 
 - [Quarto](https://quarto.org/) 1.9 以降 (Typst 0.14 が同梱されている)、または Typst 0.14 以降
-- フォント: Times、ヒラギノ明朝 ProN、ヒラギノ角ゴ ProN、STIX Two Math (どれも macOS に入っている)。Windows では代わりのフォントを入れる ([セットアップ (Windows)](#セットアップ-windows))
+- フォント: Times、ヒラギノ明朝 ProN、ヒラギノ角ゴ ProN、STIX Two Math (どれも macOS に入っている)。Windows と Linux では代わりのフォントを入れる (下のセットアップの各節)
 - make (Windows では無くてもよい)
 
 ## セットアップ (macOS)
@@ -85,7 +85,7 @@ Windows にはヒラギノと Times が無いので、GitHub Actions と同じ�
 
    ```powershell
    quarto typst --version       # Typst を入れたなら typst --version
-   quarto typst fonts | Select-String "Noto Serif CJK JP", "Noto Sans CJK JP", "Liberation Serif"
+   quarto typst fonts 2>&1 | Select-String "Noto Serif CJK JP", "Noto Sans CJK JP", "Liberation Serif"
    ```
 
    `typst 0.14` 以降と、3 つのフォントの名前が出れば使えます。
@@ -99,7 +99,56 @@ Windows にはヒラギノと Times が無いので、GitHub Actions と同じ�
 
    `unknown font family: times` や `hiragino mincho pron` などの警告は、Mac 用のフォントが無いだけなので無視してかまいません。
 
-`make` や `make check` も使いたいときは、[WSL](https://learn.microsoft.com/ja-jp/windows/wsl/install) の Ubuntu に Linux 版の Quarto か Typst を入れ、`sudo apt-get install -y make fonts-noto-cjk fonts-liberation` を実行します。GitHub Actions と同じ環境になります。
+`make` や `make check` も使いたいときは、WSL2 の Ubuntu で [セットアップ (Linux / WSL2)](#セットアップ-linux--wsl2) の手順を使います。
+
+## セットアップ (Linux / WSL2)
+
+Ubuntu での手順です。GitHub Actions と同じく、ヒラギノと Times の代わりに Noto Serif / Sans CJK JP と Liberation Serif で組みます。行の折り返しやページ数が Mac と変わることがあります。
+
+Ubuntu 24.04 のコンテナで、下の手順どおりに `make` と `make check` が通ることを確かめてあります。WSL2 の上では試していません。
+
+WSL2 を使うなら、先に PowerShell で `wsl --install` を実行して Ubuntu を入れ ([Microsoft の説明](https://learn.microsoft.com/ja-jp/windows/wsl/install))、以下を Ubuntu の端末で実行します。リポジトリは Ubuntu の側 (`~/` の下) に clone します。
+
+1. make とフォントを入れる
+
+   ```sh
+   sudo apt-get update
+   sudo apt-get install -y make curl xz-utils fonts-noto-cjk fonts-liberation
+   ```
+
+2. Quarto か Typst のどちらかを入れる (ARM の機械では `amd64` を `arm64` に、`x86_64` を `aarch64` に読み替える)
+
+   ```sh
+   # Quarto (Typst が同梱されている)
+   curl -LO https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.37/quarto-1.9.37-linux-amd64.deb
+   sudo apt-get install -y ./quarto-1.9.37-linux-amd64.deb
+   ```
+
+   ```sh
+   # または Typst だけ
+   curl -LO https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
+   tar -xf typst-x86_64-unknown-linux-musl.tar.xz
+   sudo install typst-x86_64-unknown-linux-musl/typst /usr/local/bin/
+   ```
+
+3. 入ったことを確かめる
+
+   ```sh
+   quarto typst --version       # Typst を入れたなら typst --version
+   quarto typst fonts 2>&1 | grep -E "Noto (Serif|Sans) CJK JP|Liberation Serif"
+   ```
+
+   `typst 0.14` 以降と、3 つのフォントの名前が出れば使えます。確かめてあるのは Typst 0.14.2 (Quarto 1.9.37 に同梱) と 0.15.1 です。
+
+4. `make check` を使うなら [uv](https://docs.astral.sh/uv/) も入れる (`ieice.csl` を変えないなら不要)
+
+   ```sh
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   入れたあと、端末を開き直します。
+
+ビルドは [使い方](#使い方) の `make` のとおりです。`unknown font family: times` や `hiragino mincho pron` などの警告は、Mac 用のフォントが無いだけなので無視してかまいません。WSL2 では、`explorer.exe .` でリポジトリのフォルダを Windows のエクスプローラーで開き、`main.pdf` を見られます。
 
 ## 使い方
 
